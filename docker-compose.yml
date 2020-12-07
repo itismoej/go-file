@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  auth_server:
+    build: .
+    ports:
+      - 9091:9091
+      - 50052:50052
+    env_file:
+      - .env
