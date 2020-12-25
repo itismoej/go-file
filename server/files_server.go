@@ -79,7 +79,7 @@ func (server *FilesServer) Upload(stream pb.Files_UploadServer) error {
 		return logError(status.Errorf(codes.Unknown, "cannot send response: %v", err))
 	}
 
-	log.Printf("saved image with id: %s, size: %d", newFile.ID, newFile.Size)
+	log.Printf("saved file with id: %d, size: %d", newFile.ID, newFile.Size)
 	return nil
 }
 

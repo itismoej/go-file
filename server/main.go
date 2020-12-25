@@ -50,7 +50,8 @@ func main() {
 	defer cancel()
 
 	mux := runtime.NewServeMux()
-	_ = pb.RegisterFilesHandlerServer(ctx, mux, &fileServer)
+	dialOptions := []grpc.DialOption{grpc.WithInsecure()}
+	_ = pb.RegisterFilesHandlerFromEndpoint(ctx, mux, "0.0.0.0:9091", dialOptions)
 
 	log.Printf(
 		"server REST started in localhost%s (Wait 60 second before making http requests) ...\n",

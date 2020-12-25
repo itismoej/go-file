@@ -40,20 +40,27 @@ func (file *File) Save(
 	db *gorm.DB,
 	data bytes.Buffer,
 ) (*pb.File, error) {
-	result := db.Create(&file)
-	if errors.Is(result.Error, gorm.ErrInvalidData) {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid data has been entered")
-	}
+	err := db.Transaction(func(tx *gorm.DB) error {
+		result := tx.Create(&file)
+		if errors.Is(result.Error, gorm.ErrInvalidData) {
+			return status.Errorf(codes.InvalidArgument, "invalid data has been entered")
+		}
 
-	filePath := fmt.Sprintf("media/%d-%s", file.ID, file.Name)
-	createdFile, err := os.Create(filePath)
-	if err != nil {
-		return nil, fmt.Errorf("cannot create file: %w", err)
-	}
+		filePath := fmt.Sprintf("media/%d-%s", file.ID, file.Name)
+		createdFile, err := os.Create(filePath)
+		if err != nil {
+			return fmt.Errorf("cannot create file: %w", err)
+		}
 
-	_, err = data.WriteTo(createdFile)
+		_, err = data.WriteTo(createdFile)
+		if err != nil {
+			return fmt.Errorf("cannot write to file: %w", err)
+		}
+
+		return nil
+	})
 	if err != nil {
-		return nil, fmt.Errorf("cannot write to file: %w", err)
+		return nil, fmt.Errorf("error in uploading file: %s", err)
 	}
 
 	return file.ConvertToProtoBuf(), nil
