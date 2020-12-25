@@ -20,7 +20,7 @@ type FilesServer struct {
 func (server *FilesServer) Upload(stream pb.Files_UploadServer) error {
 	req, err := stream.Recv()
 	if err != nil {
-		return logError(status.Errorf(codes.Unknown, "cannot receive image info"))
+		return logError(status.Errorf(codes.Unknown, "cannot receive file info"))
 	}
 
 	fileName := req.GetInfo().GetName()
