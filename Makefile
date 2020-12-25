@@ -12,6 +12,8 @@ ready:
     		proto/*.proto
 	go mod tidy
 
-run:
+build:
 	go build -i -o $(go env GOPATH)/bin/gofile ./server/
+
+run:
 	gofile

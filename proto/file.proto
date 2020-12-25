@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package file;
+
+import "google/api/annotations.proto";
+
+option go_package = ".;pb";
+
+service Files {
+  rpc Upload (stream FileChunk) returns (File) {
+    option (google.api.http) = {
+      post: "/upload"
+      body: "*"
+    };
+  };
+}
+
+message FileChunk {
+  oneof data {
+    FileInfo info = 1;
+    bytes content = 2;
+  }
+}
+
+message FileInfo {
+  string name = 1;
+}
+
+message File {
+  uint64 ID = 1;
+  string name = 2;
+  uint32 size = 3;
+}
