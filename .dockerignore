@@ -1,0 +1,14 @@
+.git
+Dockerfile
+.DS_Store
+.gitignore
+README.md
+env.*
+*.env
+
+*.csv
+/tmp/*
+*.pem
+*.db
+*.sqlite3
+pb/*
