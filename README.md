@@ -14,5 +14,5 @@ docker pull mjafari98/go-file:latest
 ```
 Run the container:
 ```shell script
-docker run --rm -p 9091:9091 -p 50052:50052 --env-file=.env -it mjafari98/go-file:latest
+docker run --rm -p 50061:50061 --env-file=.env -it mjafari98/go-file:latest
 ```

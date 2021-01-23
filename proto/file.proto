@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package file;
 
-import "google/api/annotations.proto";
-
 option go_package = ".;pb";
 
 service Files {

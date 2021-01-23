@@ -23,3 +23,4 @@ media/
 *.db
 *.env
 pb/*
+client/
