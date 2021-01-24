@@ -1,14 +1,17 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
+	"fmt"
 	"github.com/mjafari98/go-file/models"
 	"github.com/mjafari98/go-file/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"io"
 	"log"
+	"os"
 )
 
 const maxFileSize = 1 << 20
@@ -68,6 +71,9 @@ func (server *FilesServer) Upload(stream pb.Files_UploadServer) error {
 		}
 	}
 	newFile.Size = uint32(fileSize)
+	DB.Create(&newFile)
+	newFile.Path = fmt.Sprintf("%d-%s", newFile.ID, newFile.Name)
+	DB.Save(&newFile)
 
 	fileProtoBuf, err := newFile.Save(DB, fileData)
 	if err != nil {
@@ -80,6 +86,45 @@ func (server *FilesServer) Upload(stream pb.Files_UploadServer) error {
 	}
 
 	log.Printf("saved file with id: %d, size: %d", newFile.ID, newFile.Size)
+	return nil
+}
+
+func (server *FilesServer) Download(fileData *pb.File, stream pb.Files_DownloadServer) error {
+	var file models.File
+	DB.Take(&file, "id = ?", fileData.ID)
+	openedFile, err := os.Open("media/" + file.Path)
+	if err != nil {
+		log.Fatalf("cannot open file %s", err)
+	}
+	defer openedFile.Close()
+
+	fileInfo := &pb.FileChunk{
+		Data: &pb.FileChunk_Info{
+			Info: &pb.FileInfo{
+				Name: file.Name,
+			},
+		},
+	}
+	err = stream.Send(fileInfo)
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+
+	reader := bufio.NewReader(openedFile)
+	buffer := make([]byte, 1024)
+	for {
+		n, err := reader.Read(buffer)
+		if err == io.EOF {
+			break
+		}
+
+		err = stream.Send(&pb.FileChunk{Data: &pb.FileChunk_Content{Content: buffer[:n]}})
+		if err != nil {
+			log.Fatalf("cannot send chunk to server: %s", err)
+			return err
+		}
+	}
+
 	return nil
 }
 

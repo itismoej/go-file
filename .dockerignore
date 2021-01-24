@@ -13,3 +13,5 @@ env.*
 *.sqlite3
 pb/*
 client/
+examples/
+media/

@@ -6,6 +6,7 @@ option go_package = ".;pb";
 
 service Files {
   rpc Upload (stream FileChunk) returns (File) {};
+  rpc Download (File) returns (stream FileChunk) {};
 }
 
 message FileChunk {
