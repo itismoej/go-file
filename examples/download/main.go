@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/mjafari98/go-file/models"
 	"github.com/mjafari98/go-file/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -43,14 +42,11 @@ func main() {
 
 	req, err := stream.Recv()
 	if err != nil {
-		logError(status.Errorf(codes.Unknown, "cannot receive file info"))
+		logError(status.Errorf(codes.Unknown, "cannot receive file info: %s", err))
 	} else {
 		fileName := req.GetInfo().GetName()
 		log.Printf("receive an upload-file request with name %s", fileName)
 
-		newFile := &models.File{
-			Name: fileName,
-		}
 		fileData := bytes.Buffer{}
 
 		for {
@@ -94,7 +90,7 @@ func main() {
 			logError(status.Errorf(codes.Unknown, "cannot close send: %v", err))
 		}
 
-		log.Printf("saved file with id: %d, size: %d", newFile.ID, newFile.Size)
+		log.Printf("saved file with id: %d - name: %s", targetFileId, createdFile.Name())
 	}
 }
 

@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/mjafari98/go-file/models"
 	"github.com/mjafari98/go-file/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 	"io"
 	"log"
 	"os"
@@ -92,7 +94,11 @@ func (server *FilesServer) Upload(stream pb.Files_UploadServer) error {
 
 func (server *FilesServer) Download(fileData *pb.File, stream pb.Files_DownloadServer) error {
 	var file models.File
-	DB.Take(&file, "id = ?", fileData.ID)
+	result := DB.Take(&file, "id = ?", fileData.ID)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return status.Errorf(codes.NotFound, "file not found with this ID: %d", fileData.ID)
+	}
+
 	openedFile, err := os.Open("media/" + file.Path)
 	if err != nil {
 		log.Fatalf("cannot open file %s", err)
