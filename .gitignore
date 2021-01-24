@@ -23,3 +23,8 @@ media/
 *.db
 *.env
 pb/*
+
+examples/upload/*
+examples/upload/!main.go
+examples/download/*
+examples/download/!main.go
