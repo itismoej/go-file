@@ -12,6 +12,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 const maxFileSize = 1 << 20
@@ -30,7 +31,7 @@ func (server *FilesServer) Upload(stream pb.Files_UploadServer) error {
 	log.Printf("receive an upload-file request with name %s", fileName)
 
 	newFile := &models.File{
-		Name: fileName,
+		Name: filepath.Base(fileName),
 	}
 
 	fileData := bytes.Buffer{}

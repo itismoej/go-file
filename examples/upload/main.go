@@ -9,7 +9,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 )
 
@@ -29,7 +28,7 @@ func main() {
 		log.Fatalf("file does not exist in this path: %s", filePath)
 	}
 	defer file.Close()
-	filename := filepath.Base(file.Name())
+	filename := file.Name()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

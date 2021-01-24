@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -46,10 +47,16 @@ func (file *File) Save(
 			return status.Errorf(codes.InvalidArgument, "invalid data has been entered")
 		}
 
-		filePath := fmt.Sprintf("media/%d-%s", file.ID, file.Name)
+		dirPath := filepath.Join(".", "media")
+		err := os.MkdirAll(dirPath, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("cannot create media directory in the path: %w", err)
+		}
+
+		filePath := filepath.Join(dirPath, fmt.Sprintf("%d-%s", file.ID, file.Name))
 		createdFile, err := os.Create(filePath)
 		if err != nil {
-			return fmt.Errorf("cannot create file: %w", err)
+			return fmt.Errorf("cannot create file in the path: %w", err)
 		}
 
 		_, err = data.WriteTo(createdFile)
